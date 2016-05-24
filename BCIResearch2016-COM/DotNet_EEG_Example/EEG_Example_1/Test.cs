@@ -25,8 +25,6 @@ namespace EEG
             WindowState = FormWindowState.Maximized;
             selector = sel;
             passCTR = ctr;
-            //timer1.Enabled = true;
-            //timer1.Start();
             this.ActiveControl = textBox2;
             fn = p.get() + ".responses";
         }
@@ -44,7 +42,8 @@ namespace EEG
         public void write(String line, String path) 
         {
             // This text is added only once to the file.
-            if (!File.Exists(path)) {
+            if (!File.Exists(path)) 
+            {
                 // Create a file to write to.
                 using (StreamWriter sw = File.CreateText(path)) {}
             }
@@ -77,35 +76,13 @@ namespace EEG
             {
                 write("-empty-", fn);
             }
-            //timer1.Stop();
             this.Hide();
             if (passCTR < 25)
             {
                 Disp lol = new Disp(selector, p.get(), passCTR);
                 lol.Visible = true;
-            }
-        }
-
-        //Function for limiting entry time -> currently disabled
-        /*
-        private void timer1_Tick(object sender, EventArgs e) 
-        {
-            duration--;
-            textBox1.Text = duration.ToString();
-
-            Console.WriteLine(duration);
-
-            if (duration == 0) {
-
-              
-                write(textBox2.Text, fn);
-
-                write(textBox2.Text, "testAnswers.txt");
-                timer1.Stop();
                 this.Hide();
-              
             }
         }
-        */
     }
 }
