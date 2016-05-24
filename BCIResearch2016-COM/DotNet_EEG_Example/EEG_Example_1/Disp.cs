@@ -18,9 +18,13 @@ namespace EEG
 
         //CHANGE FOR DISPLAY TIME
         int time = 10;
+        int waitTime = 2;
+        int timerType = 0;
 
         int selector;
         int passCTR;
+
+        string fileName;
 
         private Timer tm;
 
@@ -103,56 +107,59 @@ namespace EEG
 
             passCTR = counter;
             selector = ezorhard;
-
-            if (ezorhard == 0) 
-            {
-                passwords = read("easy_passwords.txt", 1);
-                String s = passwords[counter];
-                label1.Text = s;
-                write(s, fn);
-                writee(1);
-                selector = 1;
-            } 
-            else if (ezorhard == 1) 
-            {
-                passwords = read("hard_spell_passwords.txt", 2);
-                String s = passwords[counter];
-                label1.Text = s;
-                write(s, fn);
-                writee(2);
-                selector = 0;
-                passCTR++;
-            } 
+            fileName = fn;
         }
-
-        /*
-        private static void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
-        {
-            Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
-        }
-        */
 
         private void Disp_Load(object sender, EventArgs e) 
         {
             tm = new Timer();
-            tm.Interval = time * 1000;
+            tm.Interval = waitTime * 1000;
             tm.Tick += new EventHandler(tm_Tick);
             tm.Start();         
         }
 
+        //Timer used twice (because I am lazy and it doesn't create any problems)
+        //First, creates a delay (default 2s), before showing the password
+        //Second, determines how long the password will be displayed (default 10s)
         private void tm_Tick(object sender, EventArgs e) 
         {
-            tm.Stop(); // so that we only fire the timer message once
-
-            //Form2 frm = new Form2();
-            //frm.Show();
-            //Application.Exit();
-            writee(99);
-
-            sPort.Close();
-            Test t = new Test(passCTR, selector);
-            t.Show();
-            this.Hide();
+            if (timerType == 0)
+            {
+                if (selector == 0)
+                {
+                    passwords = read("easy_passwords.txt", 1);
+                    String s = passwords[passCTR];
+                    label1.Text = s;
+                    write(s, fileName);
+                    writee(1);
+                    selector = 1;
+                }
+                else if (selector == 1)
+                {
+                    passwords = read("hard_spell_passwords.txt", 2);
+                    String s = passwords[passCTR];
+                    label1.Text = s;
+                    write(s, fileName);
+                    writee(2);
+                    selector = 0;
+                    passCTR++;
+                } 
+                tm.Stop();
+                timerType = 1;
+                tm = new Timer();
+                tm.Interval = time * 1000;
+                tm.Tick += new EventHandler(tm_Tick);
+                tm.Start();    
+            }
+            else
+            {
+                tm.Stop();
+                writee(99);
+                sPort.Close();
+                Test t = new Test(passCTR, selector);
+                t.Show();
+                this.Hide();
+            }
         }
     }
 }
